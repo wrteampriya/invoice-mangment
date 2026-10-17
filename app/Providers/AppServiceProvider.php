@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Password::defaults(function () {
+            return Password::min(8)->mixedCase()->numbers();
+        });
+
+        Gate::policy(\App\Models\Customer::class, \App\Policies\CustomerPolicy::class);
+
+        Paginator::useBootstrapFive();
     }
 }

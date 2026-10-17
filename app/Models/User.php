@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -22,6 +23,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'profile_photo_path',
     ];
 
     /**
@@ -42,8 +44,38 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Public URL of the profile photo, or null when none is set.
+     * Built with asset() so it follows the current request host/port.
+     */
+    public function getProfilePhotoUrlAttribute(): ?string
+    {
+        return $this->profile_photo_path
+            ? asset('storage/'.$this->profile_photo_path)
+            : null;
+    }
+
+    /**
+     * Up to 2 initials derived from the first two name parts.
+     */
+    public function getInitialsAttribute(): string
+    {
+        $parts = preg_split('/\s+/', trim($this->name ?? ''));
+        $initials = '';
+
+        foreach (array_slice($parts, 0, 2) as $part) {
+            $initials .= mb_strtoupper(mb_substr($part, 0, 1));
+        }
+
+        return $initials;
+    }
+
+    public function customers(): HasMany
+    {
+        return $this->hasMany(Customer::class);
     }
 }

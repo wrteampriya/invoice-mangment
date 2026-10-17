@@ -1,0 +1,897 @@
+/* ==========================================================================
+   InvoicePro — business/finance theme overrides.
+   Loaded AFTER the Purple template's style.css. Appearance only:
+   flat palette, no gradients, no purple.
+   Spacing scale: 8 / 16 / 24px.
+   ========================================================================== */
+
+:root {
+    --brand-primary: #2563eb;
+    --brand-primary-hover: #1d4ed8;
+    --brand-navy: #0f172a;
+    --brand-bg: #f1f5f9;
+    --brand-card: #ffffff;
+    --brand-border: #e2e8f0;
+    --brand-text: #334155;
+    --brand-muted: #64748b;
+    --brand-success: #16a34a;
+    --brand-danger: #dc2626;
+    --brand-warning: #d97706;
+    --brand-info: #0284c7;
+    --brand-header-bg: #f8fafc;
+    --brand-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    --brand-ring: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
+
+    /* Bootstrap variables consumed across the template */
+    --bs-primary: #2563eb;
+    --bs-primary-rgb: 37, 99, 235;
+    --bs-link-color: #2563eb;
+    --bs-link-color-rgb: 37, 99, 235;
+    --bs-link-hover-color: #1d4ed8;
+    --bs-link-hover-color-rgb: 29, 78, 216;
+    --bs-success: #16a34a;
+    --bs-success-rgb: 22, 163, 74;
+    --bs-danger: #dc2626;
+    --bs-danger-rgb: 220, 38, 38;
+    --bs-warning: #d97706;
+    --bs-warning-rgb: 217, 119, 6;
+    --bs-info: #0284c7;
+    --bs-info-rgb: 2, 132, 199;
+    --bs-body-bg: #f1f5f9;
+    --bs-body-color: #334155;
+    --bs-body-color-rgb: 51, 65, 85;
+    --bs-border-color: #e2e8f0;
+    --bs-border-color-translucent: #e2e8f0;
+}
+
+/* --------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+
+body {
+    font-size: 14px;
+    color: var(--brand-text);
+    background-color: var(--brand-bg);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.page-title,
+.card-title {
+    color: var(--brand-navy);
+}
+
+a {
+    color: var(--brand-primary);
+}
+
+a:hover {
+    color: var(--brand-primary-hover);
+}
+
+.text-primary {
+    color: var(--brand-primary) !important;
+}
+
+.text-muted {
+    color: var(--brand-muted) !important;
+}
+
+.content-wrapper {
+    background: var(--brand-bg);
+}
+
+/* --------------------------------------------------------------------------
+   Brand lockup (InvoicePro)
+   -------------------------------------------------------------------------- */
+
+.brand-lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    line-height: 1;
+}
+
+.brand-lockup:hover {
+    text-decoration: none;
+}
+
+.brand-lockup-icon {
+    font-size: 28px;
+    color: var(--brand-primary);
+}
+
+.brand-lockup-name {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: var(--brand-navy);
+}
+
+.brand-lockup-light .brand-lockup-name {
+    color: #ffffff;
+}
+
+.auth .brand-logo {
+    margin-bottom: 24px;
+}
+
+.auth .brand-logo img {
+    width: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons — flat, 6px radius, normal case, medium weight
+   -------------------------------------------------------------------------- */
+
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+    text-transform: none;
+}
+
+/* Flatten every gradient button to a solid palette color. */
+.btn-gradient-primary,
+.btn-gradient-primary:not([disabled]):not(.disabled):active,
+.btn-gradient-primary:not([disabled]):not(.disabled).active,
+.show>.btn-gradient-primary.dropdown-toggle {
+    background: var(--brand-primary);
+    border: 1px solid var(--brand-primary);
+    color: #ffffff;
+}
+
+.btn-gradient-primary:hover,
+.btn-gradient-primary:not(.btn-gradient-light):hover,
+.btn-gradient-primary:not(.btn-gradient-light):focus,
+.btn-gradient-primary:not(.btn-gradient-light):active {
+    background: var(--brand-primary-hover);
+    border-color: var(--brand-primary-hover);
+    color: #ffffff;
+    opacity: 1;
+}
+
+.btn-gradient-secondary {
+    background: var(--brand-muted);
+    border: 1px solid var(--brand-muted);
+    color: #ffffff;
+}
+
+.btn-gradient-success {
+    background: var(--brand-success);
+    border: 1px solid var(--brand-success);
+    color: #ffffff;
+}
+
+.btn-gradient-info {
+    background: var(--brand-info);
+    border: 1px solid var(--brand-info);
+    color: #ffffff;
+}
+
+.btn-gradient-warning {
+    background: var(--brand-warning);
+    border: 1px solid var(--brand-warning);
+    color: #ffffff;
+}
+
+.btn-gradient-danger {
+    background: var(--brand-danger);
+    border: 1px solid var(--brand-danger);
+    color: #ffffff;
+}
+
+.btn-gradient-dark {
+    background: var(--brand-navy);
+    border: 1px solid var(--brand-navy);
+    color: #ffffff;
+}
+
+.btn-gradient-light {
+    background: var(--brand-header-bg);
+    border: 1px solid var(--brand-border);
+    color: var(--brand-text);
+}
+
+.btn-gradient-secondary:hover,
+.btn-gradient-success:hover,
+.btn-gradient-info:hover,
+.btn-gradient-warning:hover,
+.btn-gradient-danger:hover,
+.btn-gradient-dark:hover,
+.btn-gradient-light:hover {
+    opacity: 1;
+    filter: brightness(0.94);
+}
+
+/* --------------------------------------------------------------------------
+   Gradient surfaces and badges — flat palette colors
+   -------------------------------------------------------------------------- */
+
+.bg-gradient-primary {
+    background: var(--brand-primary) !important;
+}
+
+.bg-gradient-secondary {
+    background: var(--brand-muted) !important;
+}
+
+.bg-gradient-success {
+    background: var(--brand-success) !important;
+}
+
+.bg-gradient-info {
+    background: var(--brand-info) !important;
+}
+
+.bg-gradient-warning {
+    background: var(--brand-warning) !important;
+}
+
+.bg-gradient-danger {
+    background: var(--brand-danger) !important;
+}
+
+.bg-gradient-dark {
+    background: var(--brand-navy) !important;
+}
+
+.bg-gradient-light {
+    background: var(--brand-header-bg) !important;
+}
+
+.badge-gradient-primary {
+    background: var(--brand-primary);
+    color: #ffffff;
+}
+
+.badge-gradient-secondary {
+    background: var(--brand-muted);
+    color: #ffffff;
+}
+
+.badge-gradient-success {
+    background: var(--brand-success);
+    color: #ffffff;
+}
+
+.badge-gradient-info {
+    background: var(--brand-info);
+    color: #ffffff;
+}
+
+.badge-gradient-warning {
+    background: var(--brand-warning);
+    color: #ffffff;
+}
+
+.badge-gradient-danger {
+    background: var(--brand-danger);
+    color: #ffffff;
+}
+
+.badge-gradient-dark {
+    background: var(--brand-navy);
+    color: #ffffff;
+}
+
+.badge-gradient-light {
+    background: var(--brand-header-bg);
+    color: var(--brand-text);
+    border: 1px solid var(--brand-border);
+}
+
+/* --------------------------------------------------------------------------
+   Forms — 44px inputs, 6px radius, blue focus ring
+   -------------------------------------------------------------------------- */
+
+.form-control,
+.form-select {
+    min-height: 44px;
+    border: 1px solid var(--brand-border);
+    border-radius: 6px;
+    font-size: 14px;
+    color: var(--brand-text);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--brand-primary);
+    box-shadow: var(--brand-ring);
+    color: var(--brand-text);
+}
+
+.form-control::placeholder {
+    color: var(--brand-muted);
+}
+
+.form-check-input {
+    border: 1px solid #94a3b8;
+}
+
+.form-check-input:focus {
+    border-color: var(--brand-primary);
+    box-shadow: var(--brand-ring);
+}
+
+.form-check-input:checked {
+    background-color: var(--brand-primary);
+    border-color: var(--brand-primary);
+}
+
+.form-check-input[type="checkbox"]:indeterminate {
+    background-color: var(--brand-primary);
+    border-color: var(--brand-primary);
+}
+
+/* Theme custom checkboxes/radios: the native input is hidden (opacity 0) and
+   the visible box is drawn by .input-helper. Recolor it from purple to blue. */
+.form-check .form-check-label input[type="checkbox"]+.input-helper:before {
+    border-color: var(--brand-primary);
+    border-radius: 4px;
+}
+
+.form-check .form-check-label input[type="checkbox"]:hover+.input-helper:before {
+    border-color: var(--brand-primary-hover);
+}
+
+.form-check .form-check-label input[type="checkbox"]:focus+.input-helper:before {
+    border-color: var(--brand-primary);
+    box-shadow: var(--brand-ring);
+}
+
+.form-check .form-check-label input[type="checkbox"]:checked+.input-helper:before {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+}
+
+.form-check .form-check-label input[type="radio"]+.input-helper:before {
+    border-color: var(--brand-primary);
+}
+
+.form-check .form-check-label input[type="radio"]:checked+.input-helper:before {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+}
+
+/* --------------------------------------------------------------------------
+   Auth pages
+   -------------------------------------------------------------------------- */
+
+.container-fluid.page-body-wrapper.full-page-wrapper .content-wrapper {
+    background: var(--brand-bg);
+}
+
+.auth .auth-form-light {
+    background: var(--brand-card);
+    border: 1px solid var(--brand-border);
+    border-radius: 8px;
+    box-shadow: var(--brand-shadow);
+}
+
+.auth form .form-group .form-control {
+    background: var(--brand-card);
+    border: 1px solid var(--brand-border);
+    border-radius: 6px;
+    font-size: 14px;
+    min-height: 44px;
+}
+
+.auth form .form-group .form-control:focus {
+    border-color: var(--brand-primary);
+    box-shadow: var(--brand-ring);
+}
+
+.auth form .auth-form-btn {
+    height: 44px;
+}
+
+/* Input icons: the left padding inside auth fields now holds an icon. */
+.auth-field {
+    position: relative;
+}
+
+.auth-field>.form-control {
+    padding-left: 40px;
+}
+
+.auth-field-icon {
+    position: absolute;
+    left: 12px;
+    top: 22px;
+    transform: translateY(-50%);
+    font-size: 18px;
+    line-height: 1;
+    color: var(--brand-muted);
+    pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Cards
+   -------------------------------------------------------------------------- */
+
+.card {
+    background: var(--brand-card);
+    border: 1px solid var(--brand-border);
+    border-radius: 8px;
+    box-shadow: var(--brand-shadow);
+}
+
+.card .card-title {
+    color: var(--brand-navy);
+}
+
+/* --------------------------------------------------------------------------
+   Navbar — white with a thin bottom border
+   -------------------------------------------------------------------------- */
+
+.navbar {
+    background: var(--brand-card);
+    border-bottom: 1px solid var(--brand-border);
+    box-shadow: none;
+}
+
+.navbar .navbar-brand-wrapper {
+    background: var(--brand-card);
+}
+
+.navbar .navbar-menu-wrapper {
+    background: var(--brand-card);
+    border-left: 0;
+    box-shadow: none;
+}
+
+.navbar .navbar-menu-wrapper .navbar-nav .nav-item.nav-profile .nav-link .nav-profile-text p {
+    color: var(--brand-navy);
+}
+
+.navbar .navbar-toggler {
+    color: var(--brand-text);
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar — navy, light text, blue active indicator
+   -------------------------------------------------------------------------- */
+
+.sidebar {
+    background: var(--brand-navy);
+}
+
+.sidebar-name {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.sidebar .nav {
+    padding: 8px 0 16px;
+}
+
+.sidebar .nav .nav-item {
+    padding: 0 16px;
+}
+
+.sidebar .nav .nav-item .nav-link {
+    color: #cbd5e1;
+    border-left: 3px solid transparent;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 4px;
+}
+
+.sidebar .nav .nav-item .nav-link .menu-title {
+    color: inherit;
+}
+
+.sidebar .nav .nav-item .nav-link i.menu-icon {
+    color: #94a3b8;
+}
+
+.sidebar .nav .nav-item .nav-link:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+}
+
+.sidebar .nav .nav-item .nav-link:hover i.menu-icon {
+    color: #ffffff;
+}
+
+.sidebar .nav .nav-item.active {
+    background: transparent;
+}
+
+.sidebar .nav .nav-item.active>.nav-link {
+    background: rgba(37, 99, 235, 0.18);
+    border-left-color: var(--brand-primary);
+    color: #ffffff;
+}
+
+.sidebar .nav .nav-item.active>.nav-link .menu-title {
+    color: #ffffff;
+}
+
+.sidebar .nav .nav-item.active>.nav-link i {
+    color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   Tables and pagination
+   -------------------------------------------------------------------------- */
+
+.table>thead>tr>th {
+    background: var(--brand-header-bg);
+    color: var(--brand-navy);
+    font-weight: 600;
+    border-bottom: 1px solid var(--brand-border);
+}
+
+.table>tbody>tr:hover>* {
+    background: var(--brand-header-bg);
+}
+
+.page-link {
+    color: var(--brand-primary);
+    border-color: var(--brand-border);
+}
+
+.page-link:hover {
+    color: var(--brand-primary-hover);
+    background: var(--brand-header-bg);
+    border-color: var(--brand-border);
+}
+
+.page-link:focus {
+    box-shadow: var(--brand-ring);
+}
+
+.page-item.active .page-link {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+
+.footer {
+    background: transparent;
+    border-top: 1px solid var(--brand-border);
+    color: var(--brand-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Profile page
+   -------------------------------------------------------------------------- */
+
+.profile-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.page-subtitle {
+    color: var(--brand-muted);
+    margin-top: 4px;
+}
+
+.profile-card {
+    border-radius: 12px;
+}
+
+.profile-card .card-body {
+    padding: 24px;
+}
+
+.profile-card .form-label {
+    font-weight: 600;
+    color: var(--brand-navy);
+    margin-bottom: 8px;
+}
+
+.profile-photo-row {
+    margin-bottom: 24px;
+}
+
+.profile-photo-title {
+    font-weight: 600;
+    color: var(--brand-navy);
+}
+
+.profile-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--brand-primary);
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.avatar-edit {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--brand-primary);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    box-shadow: var(--brand-shadow);
+    margin: 0;
+    padding: 0;
+}
+
+.avatar-edit:hover {
+    background: var(--brand-primary-hover);
+    color: #ffffff;
+}
+
+.avatar-menu {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 8px);
+    min-width: 172px;
+    background: var(--brand-card);
+    border: 1px solid var(--brand-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+    padding: 4px;
+    z-index: 20;
+}
+
+.avatar-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--brand-text);
+    background: none;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.avatar-menu-item:hover {
+    background: var(--brand-header-bg);
+    color: var(--brand-text);
+}
+
+.avatar-menu-item i {
+    font-size: 16px;
+    color: var(--brand-muted);
+}
+
+.avatar-menu-danger,
+.avatar-menu-danger:hover,
+.avatar-menu-danger i {
+    color: var(--brand-danger);
+}
+
+.profile-link {
+    color: var(--brand-primary);
+    font-weight: 500;
+    font-size: 14px;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+}
+
+.profile-link:hover {
+    color: var(--brand-primary-hover);
+    text-decoration: underline;
+}
+
+.profile-link-danger {
+    color: var(--brand-danger);
+}
+
+.profile-link-danger:hover {
+    color: #b91c1c;
+}
+
+.field-error {
+    color: var(--brand-danger);
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.form-control.is-invalid {
+    border-color: var(--brand-danger);
+}
+
+.save-status {
+    color: var(--brand-muted);
+    font-size: 13px;
+}
+
+.password-field {
+    position: relative;
+}
+
+.password-field>.form-control {
+    padding-right: 44px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: 0;
+    color: var(--brand-muted);
+    font-size: 18px;
+    line-height: 1;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.password-toggle:hover {
+    color: var(--brand-text);
+}
+
+/* Hide the browser's native password reveal/clear buttons (Edge) inside
+   fields that already have our own eye toggle, so only one icon shows. */
+.password-field .form-control.is-invalid,
+.password-field .form-control:invalid,
+.was-validated .password-field .form-control:invalid {
+    background-image: none !important;
+    padding-right: 3rem;
+}
+
+/* Navbar avatar initials (32px to match the theme's photo circle). */
+.nav-avatar-initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 100%;
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--brand-primary);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Customers module
+   -------------------------------------------------------------------------- */
+
+.fw-semibold {
+    font-weight: 600;
+}
+
+.list-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--brand-primary);
+    margin-bottom: 16px;
+}
+
+.list-status i {
+    font-size: 16px;
+}
+
+/* Segmented Individual | Business toggle. */
+.segmented {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    background: var(--brand-card);
+    border: 1px solid var(--brand-border);
+    border-radius: 6px;
+}
+
+.segmented input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.segmented label {
+    margin: 0;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--brand-text);
+    cursor: pointer;
+}
+
+.segmented input:checked + label {
+    background: var(--brand-primary);
+    color: #ffffff;
+}
+
+.segmented input:focus-visible + label {
+    box-shadow: var(--brand-ring);
+}
+
+/* --------------------------------------------------------------------------
+   Collapsed (icon-only) sidebar: show the brand icon only, never clipped text.
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 992px) {
+    .sidebar-icon-only .navbar .navbar-brand-wrapper {
+        justify-content: center;
+    }
+
+    .sidebar-icon-only .navbar .navbar-brand-wrapper .brand-lockup-name {
+        display: none;
+    }
+
+    .sidebar-icon-only .sidebar-name {
+        display: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Responsive — stays usable down to 360px
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 576px) {
+    .content-wrapper {
+        padding: 16px;
+    }
+
+    .auth .auth-form-light {
+        padding: 24px 16px !important;
+    }
+
+    .auth .brand-logo {
+        margin-bottom: 16px;
+    }
+
+    .brand-lockup-name {
+        font-size: 18px;
+    }
+
+    .brand-lockup-icon {
+        font-size: 24px;
+    }
+
+    .page-header {
+        margin-bottom: 16px;
+    }
+
+    .profile-card .card-body {
+        padding: 16px;
+    }
+}
