@@ -3,7 +3,9 @@
 @section('title', 'Customers - ' . config('app.name'))
 
 @push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.27.3/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap-table-admin.css') }}">
 @endpush
 
 @section('content')
@@ -21,32 +23,47 @@
 @if (session('status'))
     <div class="list-status"><i class="mdi mdi-check-circle-outline"></i> {{ session('status') }}</div>
 @endif
+@if (session('error'))
+    <div class="list-status list-status-error"><i class="mdi mdi-alert-circle-outline"></i> {{ session('error') }}</div>
+@endif
 
-<div class="card">
+<div class="card bt-admin-card">
     <div class="card-body">
         <div class="table-responsive">
             <table
                 id="customers-table"
                 data-toggle="table"
                 data-url="{{ route('customers.index', ['format' => 'json']) }}"
+                data-method="get"
+                data-side-pagination="server"
+                data-sort-name="id"
+                data-sort-order="desc"
+                data-sort-stable="true"
                 data-pagination="true"
-                data-search="true"
-                data-show-columns="true"
-                data-show-refresh="true"
                 data-page-size="10"
-                data-page-list="[10, 25, 50, 100, all]"
-                data-classes="table table-hover"
-                data-thead-classes="table-light"
+                data-page-list="[10, 25, 50, 100]"
+                data-search="true"
+                data-search-align="left"
+                data-buttons-align="right"
+                data-show-refresh="true"
+                data-show-columns="true"
+                data-icons-prefix="bi"
+                data-icons='{"refresh":"bi-arrow-repeat","columns":"bi-table"}'
+                data-ajax="adminTableAjax"
+                data-query-params="adminQueryParams"
+                data-loading-template="adminLoadingTemplate"
+                data-classes="table table-striped"
+                data-thead-classes=""
             >
                 <thead>
                     <tr>
-                        <th data-field="id" data-sortable="true">ID</th>
-                        <th data-field="name" data-sortable="true">Name</th>
-                        <th data-field="customer_type" data-sortable="true">Type</th>
-                        <th data-field="email" data-sortable="true">Email</th>
-                        <th data-field="phone">Phone</th>
-                        <th data-field="city_country" data-sortable="true">City / Country</th>
-                        <th data-field="actions" data-align="right">Actions</th>
+                        <th data-field="id" data-sortable="true" data-align="left">ID</th>
+                        <th data-field="raw_name" data-sortable="true" data-formatter="customerNameFormatter">Name</th>
+                        <th data-field="customer_type" data-sortable="true" data-formatter="customerTypeFormatter">Type</th>
+                        <th data-field="email" data-sortable="true" data-formatter="customerTextFormatter">Email</th>
+                        <th data-field="phone" data-sortable="true" data-formatter="customerTextFormatter">Phone</th>
+                        <th data-field="city_country" data-sortable="true" data-formatter="customerTextFormatter">City / Country</th>
+                        <th data-field="show_url" data-align="center" data-formatter="customerActionsFormatter">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -62,25 +79,25 @@
                                 </td>
                                 <td>
                                     @if ($customer->customer_type === 'business')
-                                        <span class="badge bg-primary">Business</span>
+                                        <span class="badge-pill-type badge-type-business">Business</span>
                                     @else
-                                        <span class="badge bg-secondary">Individual</span>
+                                        <span class="badge-pill-type badge-type-individual">Individual</span>
                                     @endif
                                 </td>
                                 <td>{{ $customer->email ?? '—' }}</td>
                                 <td>{{ $customer->phone ?? '—' }}</td>
                                 <td>{{ $customer->city ? $customer->city . ($customer->country_code ? ', ' . $customer->country_code : '') : ($customer->country_code ?? '—') }}</td>
                                 <td>
-                                    <div class="d-flex justify-content-end gap-2">
-                                        <a href="{{ route('customers.show', $customer) }}" class="btn btn-sm btn-outline-primary" title="View" aria-label="View {{ $customer->display_name }}">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a href="{{ route('customers.show', $customer) }}" class="table-action-btn table-action-view" title="View" aria-label="View {{ $customer->display_name }}">
                                             <i class="mdi mdi-eye-outline"></i>
                                         </a>
-                                        <a href="{{ route('customers.edit', $customer) }}" class="btn btn-sm btn-outline-secondary" title="Edit" aria-label="Edit {{ $customer->display_name }}">
+                                        <a href="{{ route('customers.edit', $customer) }}" class="table-action-btn table-action-edit" title="Edit" aria-label="Edit {{ $customer->display_name }}">
                                             <i class="mdi mdi-pencil-outline"></i>
                                         </a>
                                         <button
                                             type="button"
-                                            class="btn btn-sm btn-outline-danger"
+                                            class="table-action-btn table-action-delete"
                                             title="Delete"
                                             aria-label="Delete {{ $customer->display_name }}"
                                             data-delete-url="{{ route('customers.destroy', $customer) }}"
@@ -99,90 +116,14 @@
     </div>
 </div>
 
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Delete Customer</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Delete <strong id="deleteCustomerName"></strong>? This cannot be undone.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form id="deleteCustomerForm" method="POST" action="#">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-gradient-danger">Delete</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+@include('partials.delete-modal', [
+    'title' => 'Delete Customer',
+    'message' => 'Delete <strong id="deleteRecordName"></strong>? This cannot be undone.',
+    'button' => 'Delete',
+])
 @endsection
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.27.3/dist/bootstrap-table.min.js"></script>
-<script>
-(function () {
-    var modalEl = document.getElementById('deleteModal');
-    var form = document.getElementById('deleteCustomerForm');
-    var nameEl = document.getElementById('deleteCustomerName');
-
-    function openModal() {
-        if (window.bootstrap && window.bootstrap.Modal) {
-            window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
-            return;
-        }
-        modalEl.classList.add('show');
-        modalEl.style.display = 'block';
-        modalEl.removeAttribute('aria-hidden');
-        document.body.classList.add('modal-open');
-        var backdrop = document.createElement('div');
-        backdrop.className = 'modal-backdrop fade show';
-        backdrop.id = 'deleteModalBackdrop';
-        backdrop.addEventListener('click', closeModal);
-        document.body.appendChild(backdrop);
-    }
-
-    function closeModal() {
-        if (window.bootstrap && window.bootstrap.Modal) {
-            var instance = window.bootstrap.Modal.getInstance(modalEl);
-            if (instance) {
-                instance.hide();
-                return;
-            }
-        }
-        modalEl.classList.remove('show');
-        modalEl.style.display = 'none';
-        modalEl.setAttribute('aria-hidden', 'true');
-        document.body.classList.remove('modal-open');
-        var backdrop = document.getElementById('deleteModalBackdrop');
-        if (backdrop) {
-            backdrop.remove();
-        }
-    }
-
-    // Event delegation so dynamic table rows from bootstrap-table are handled
-    document.addEventListener('click', function (event) {
-        var button = event.target.closest('[data-delete-url]');
-        if (button) {
-            form.action = button.getAttribute('data-delete-url');
-            nameEl.textContent = button.getAttribute('data-delete-name');
-            openModal();
-        }
-    });
-
-    modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(function (button) {
-        button.addEventListener('click', closeModal);
-    });
-
-    document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape' && modalEl.classList.contains('show')) {
-            closeModal();
-        }
-    });
-})();
-</script>
+<script src="{{ asset('assets/js/bootstrap-table-admin.js') }}"></script>
 @endpush

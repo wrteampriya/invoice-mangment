@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Customer\StoreCustomerRequest;
 use App\Http\Requests\Customer\UpdateCustomerRequest;
 use App\Models\Customer;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,48 +15,35 @@ class CustomerController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(Request $request): View|\Illuminate\Http\JsonResponse
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Customer::class);
 
         if ($request->wantsJson() || $request->ajax() || $request->query('format') === 'json') {
-            $query = Customer::ownedBy($request->user()->id);
+            $query = Customer::ownedBy($request->user()->id)
+                ->search($request->input('search', $request->input('q')));
 
-            $search = $request->input('search', $request->input('q'));
-            if ($search) {
-                $query->search($search);
+            $this->applyRequestSort($query, $request);
+
+            $limit = (int) $request->input('limit', 10);
+            if ($limit < 1 || $limit > 500) {
+                $limit = 10;
             }
+            $offset = max(0, (int) $request->input('offset', 0));
 
-            if (in_array($request->input('type'), Customer::CUSTOMER_TYPES, true)) {
-                $query->where('customer_type', $request->input('type'));
-            }
+            $total = (clone $query)->count();
+            $rows = $query
+                ->skip($offset)
+                ->take($limit)
+                ->get()
+                ->map(fn (Customer $c) => $this->transformCustomer($c))
+                ->values()
+                ->all();
 
-            if ($request->has('offset') || $request->input('sidePagination') === 'server') {
-                $total = (clone $query)->count();
-
-                $sort = $request->input('sort', 'created_at');
-                $order = $request->input('order', 'desc');
-                $allowedSorts = ['id', 'name', 'company_name', 'email', 'phone', 'city', 'country_code', 'created_at'];
-
-                if (in_array($sort, $allowedSorts, true)) {
-                    $query->orderBy($sort, strtolower($order) === 'asc' ? 'asc' : 'desc');
-                } else {
-                    $query->latest();
-                }
-
-                $offset = (int) $request->input('offset', 0);
-                $limit = (int) $request->input('limit', 10);
-                $customers = $query->skip($offset)->take($limit)->get();
-
-                return response()->json([
-                    'total' => $total,
-                    'rows' => $customers->map(fn (Customer $c) => $this->transformCustomer($c)),
-                ]);
-            }
-
-            $customers = $query->latest()->get();
-
-            return response()->json($customers->map(fn (Customer $c) => $this->transformCustomer($c)));
+            return response()->json([
+                'total' => $total,
+                'rows' => $rows,
+            ]);
         }
 
         $customers = Customer::ownedBy($request->user()->id)
@@ -71,36 +59,43 @@ class CustomerController extends Controller
         return view('customers.index', compact('customers'));
     }
 
+    protected function applyRequestSort(Builder $query, Request $request): void
+    {
+        $sortableColumns = [
+            'id' => 'id',
+            'name' => 'name',
+            'company_name' => 'company_name',
+            'customer_type' => 'customer_type',
+            'email' => 'email',
+            'phone' => 'phone',
+            'city_country' => 'city',
+            'created_at' => 'created_at',
+        ];
+
+        $sort = $sortableColumns[$request->input('sort', 'id')] ?? 'id';
+        $order = strtolower((string) ($request->input('order', 'desc'))) === 'asc' ? 'asc' : 'desc';
+
+        $query->orderBy($sort, $order)->orderBy('id', 'desc');
+    }
+
     protected function transformCustomer(Customer $customer): array
     {
-        $badgeClass = $customer->customer_type === 'business' ? 'badge bg-primary' : 'badge bg-secondary';
-        $typeLabel = $customer->customer_type === 'business' ? 'Business' : 'Individual';
-
-        $nameHtml = '<div class="fw-semibold">' . e($customer->display_name) . '</div>';
-        if ($customer->customer_type === 'business' && $customer->name) {
-            $nameHtml .= '<small class="text-muted">' . e($customer->name) . '</small>';
-        }
-
         $cityCountry = trim(implode(', ', array_filter([$customer->city, $customer->country_code])));
-
-        $actionsHtml = '<div class="d-flex justify-content-end gap-2">'
-            . '<a href="' . route('customers.show', $customer) . '" class="btn btn-sm btn-outline-primary" title="View" aria-label="View ' . e($customer->display_name) . '"><i class="mdi mdi-eye-outline"></i></a>'
-            . '<a href="' . route('customers.edit', $customer) . '" class="btn btn-sm btn-outline-secondary" title="Edit" aria-label="Edit ' . e($customer->display_name) . '"><i class="mdi mdi-pencil-outline"></i></a>'
-            . '<button type="button" class="btn btn-sm btn-outline-danger" title="Delete" aria-label="Delete ' . e($customer->display_name) . '" data-delete-url="' . route('customers.destroy', $customer) . '" data-delete-name="' . e($customer->display_name) . '"><i class="mdi mdi-delete-outline"></i></button>'
-            . '</div>';
 
         return [
             'id' => $customer->id,
-            'name' => $nameHtml,
             'raw_name' => $customer->display_name,
-            'customer_type' => '<span class="' . $badgeClass . '">' . $typeLabel . '</span>',
-            'raw_type' => $customer->customer_type,
-            'email' => $customer->email ?? '—',
-            'phone' => $customer->phone ?? '—',
-            'city_country' => $cityCountry ?: '—',
+            'company_name' => $customer->customer_type === 'business' ? ($customer->name ?? '') : '',
+            'customer_type' => $customer->customer_type,
+            'email' => $customer->email,
+            'phone' => $customer->phone,
             'city' => $customer->city,
             'country_code' => $customer->country_code,
-            'actions' => $actionsHtml,
+            'city_country' => $cityCountry,
+            'created_at' => optional($customer->created_at)->format('d M Y'),
+            'show_url' => route('customers.show', $customer),
+            'edit_url' => route('customers.edit', $customer),
+            'delete_url' => route('customers.destroy', $customer),
         ];
     }
 
@@ -149,10 +144,9 @@ class CustomerController extends Controller
     {
         $this->authorize('delete', $customer);
 
-        // TODO: block deletion when the customer has invoices (activate when the invoices module is built).
-        // if ($customer->invoices()->exists()) {
-        //     return back()->with('status', 'This customer cannot be deleted because it has invoices.');
-        // }
+        if ($customer->invoices()->exists()) {
+            return back()->with('error', 'This customer cannot be deleted because they have invoices.');
+        }
 
         $customer->delete();
 

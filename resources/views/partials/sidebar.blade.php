@@ -13,9 +13,8 @@
                 <i class="mdi mdi-contacts menu-icon"></i>
             </a>
         </li>
-        {{-- TODO: point to the invoices index route once it exists. --}}
-        <li class="nav-item">
-            <a class="nav-link" href="#">
+        <li class="nav-item {{ request()->routeIs('invoices.*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('invoices.index') }}">
                 <span class="menu-title">Invoices</span>
                 <i class="mdi mdi-receipt menu-icon"></i>
             </a>

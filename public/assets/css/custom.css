@@ -895,3 +895,7 @@ a:hover {
         padding: 16px;
     }
 }
+/* Error variant for list status banners */
+.list-status-error {
+    color: #dc3545;
+}
