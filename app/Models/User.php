@@ -59,6 +59,21 @@ class User extends Authenticatable
             : null;
     }
 
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    public function customers(): HasMany
+    {
+        return $this->hasMany(Customer::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
     /**
      * Up to 2 initials derived from the first two name parts.
      */
@@ -72,10 +87,5 @@ class User extends Authenticatable
         }
 
         return $initials;
-    }
-
-    public function customers(): HasMany
-    {
-        return $this->hasMany(Customer::class);
     }
 }

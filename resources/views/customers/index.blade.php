@@ -43,7 +43,7 @@
                 data-page-size="10"
                 data-page-list="[10, 25, 50, 100]"
                 data-search="true"
-                data-search-align="left"
+                data-search-align="right"
                 data-buttons-align="right"
                 data-show-refresh="true"
                 data-show-columns="true"

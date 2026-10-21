@@ -2,26 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
-use App\Models\Invoice;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
+use App\Models\Customer;
+use App\Models\Invoice;
 use App\Services\InvoiceService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class InvoiceController extends Controller
 {
     use AuthorizesRequests;
 
-    public function __construct(protected InvoiceService $invoices)
-    {
-    }
+    public function __construct(protected InvoiceService $invoices) {}
 
-    public function index(Request $request): View|\Illuminate\Http\JsonResponse
+    public function index(Request $request): View|JsonResponse
     {
         $this->authorize('viewAny', Invoice::class);
 
@@ -138,9 +139,22 @@ class InvoiceController extends Controller
     }
 
     /**
+     * Download this single invoice as a PDF (owner only).
+     */
+    public function pdf(Request $request, Invoice $invoice)
+    {
+        $this->authorize('view', $invoice);
+
+        $invoice->load(['items', 'payments', 'customer', 'user']);
+
+        return Pdf::loadView('pdf.invoice', ['invoice' => $invoice])
+            ->stream($invoice->invoice_number.'.pdf');
+    }
+
+    /**
      * Customer dropdown options for the form (only the user's own customers).
      */
-    protected function customerOptions(int $userId): \Illuminate\Support\Collection
+    protected function customerOptions(int $userId): Collection
     {
         return Customer::query()
             ->where('user_id', $userId)
@@ -180,7 +194,7 @@ class InvoiceController extends Controller
             return;
         }
 
-        $like = '%' . $term . '%';
+        $like = '%'.$term.'%';
 
         $query->where(function (Builder $query) use ($like) {
             $query->where('invoice_number', 'like', $like)

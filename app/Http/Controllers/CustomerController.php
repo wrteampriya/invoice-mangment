@@ -121,7 +121,44 @@ class CustomerController extends Controller
     {
         $this->authorize('view', $customer);
 
-        return view('customers.show', compact('customer'));
+        // One query for the invoice list + one for the payments aggregate.
+        $invoices = $customer->invoices()
+            ->withSum('payments as paid_total_sum', 'amount')
+            ->orderByDesc('id')
+            ->get();
+
+        [$outstandingByCurrency, $lastInvoiceDate] = $this->billingActivity($invoices);
+
+        return view('customers.show', [
+            'customer' => $customer,
+            'invoices' => $invoices,
+            'totalInvoices' => $invoices->count(),
+            'outstandingByCurrency' => $outstandingByCurrency,
+            'lastActivity' => $lastInvoiceDate ?? $customer->updated_at,
+        ]);
+    }
+
+    /**
+     * Outstanding balance per currency and the most recent invoice date.
+     * Never mixes currencies together.
+     */
+    protected function billingActivity($invoices): array
+    {
+        $outstanding = [];
+
+        foreach ($invoices as $invoice) {
+            if ($invoice->balance > 0 && $invoice->status === 'sent') {
+                $outstanding[$invoice->currency] = ($outstanding[$invoice->currency] ?? 0) + $invoice->balance;
+            }
+        }
+
+        $lastInvoiceDate = $invoices
+            ->pluck('invoice_date')
+            ->filter()
+            ->sortDesc()
+            ->first();
+
+        return [$outstanding, $lastInvoiceDate];
     }
 
     public function edit(Customer $customer): View

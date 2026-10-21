@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,6 +25,8 @@ class Invoice extends Model
 
     public const CURRENCIES = ['USD', 'INR', 'EUR', 'GBP', 'AUD', 'CAD', 'AED'];
 
+    public const STATUSES = ['draft', 'sent', 'cancelled'];
+
     protected $fillable = [
         'user_id',
         'customer_id',
@@ -32,6 +35,7 @@ class Invoice extends Model
         'due_date',
         'currency',
         'customer_country',
+        'status',
         'tax_type',
         'tax_rate',
         'subtotal',
@@ -49,6 +53,7 @@ class Invoice extends Model
         'discount_total' => 'decimal:2',
         'tax_total' => 'decimal:2',
         'grand_total' => 'decimal:2',
+        'status' => 'string',
     ];
 
     public function user(): BelongsTo
@@ -64,6 +69,95 @@ class Invoice extends Model
     public function items(): HasMany
     {
         return $this->hasMany(InvoiceItem::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class)->orderBy('payment_date');
+    }
+
+    /**
+     * Sum of payments received for this invoice. When the relation has been
+     * eager-summed (withSum('payments as paid_total_sum', 'amount')) the
+     * pre-computed value is reused instead of hitting the database again.
+     */
+    public function getPaidTotalAttribute(): float
+    {
+        if (array_key_exists('paid_total_sum', $this->attributes)) {
+            return (float) ($this->paid_total_sum ?? 0);
+        }
+
+        return (float) $this->payments()->sum('amount');
+    }
+
+    /**
+     * grand_total - paid_total, never below zero.
+     */
+    public function getBalanceAttribute(): float
+    {
+        return max(0, (float) $this->grand_total - $this->paid_total);
+    }
+
+    /**
+     * Computed status for display: draft/cancelled as stored, otherwise
+     * derived from payments and the due date.
+     */
+    public function getDisplayStatusAttribute(): string
+    {
+        if (in_array($this->status, ['draft', 'cancelled'], true)) {
+            return $this->status;
+        }
+
+        if ($this->balance <= 0) {
+            return $this->paid_total > 0 ? 'paid' : 'sent';
+        }
+
+        if ($this->paid_total > 0) {
+            return 'partial';
+        }
+
+        if ($this->due_date && $this->due_date->isPast()) {
+            return 'overdue';
+        }
+
+        return 'sent';
+    }
+
+    /**
+     * Sent invoices that still have an outstanding balance.
+     */
+    public function scopeOutstanding(Builder $query): Builder
+    {
+        return $query
+            ->where('status', 'sent')
+            ->whereRaw('grand_total > COALESCE((SELECT SUM(amount) FROM payments WHERE payments.invoice_id = invoices.id), 0)');
+    }
+
+    /**
+     * Outstanding invoices whose due date has passed.
+     */
+    public function scopeOverdue(Builder $query): Builder
+    {
+        return $query->outstanding()->whereDate('due_date', '<', now()->toDateString());
+    }
+
+    /**
+     * Outstanding invoices due within the next N days (from today).
+     */
+    public function scopeDueWithin(Builder $query, int $days): Builder
+    {
+        return $query->outstanding()->whereBetween('due_date', [
+            now()->toDateString(),
+            now()->addDays($days)->toDateString(),
+        ]);
+    }
+
+    /**
+     * All invoice queries belong to the issuing user.
+     */
+    public function scopeOwnedBy(Builder $query, int $userId): Builder
+    {
+        return $query->where('user_id', $userId);
     }
 
     /**
