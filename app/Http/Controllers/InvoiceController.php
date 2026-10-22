@@ -137,7 +137,7 @@ class InvoiceController extends Controller
         $invoice = $this->invoices->updateInvoice($invoice, $request->validated(), $request->itemRows());
 
         return redirect()
-            ->route('invoices.index')
+            ->route('invoices.show', $invoice)
             ->with('status', 'Invoice updated.');
     }
 

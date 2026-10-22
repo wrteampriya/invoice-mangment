@@ -2,23 +2,29 @@
 
 @section('title', 'Edit Invoice ' . $invoice->invoice_number . ' - ' . config('app.name'))
 
-@section('content')
-    <div class="page-header">
-        <h3 class="page-title">
-            <span class="page-title-icon bg-gradient-primary text-white me-2">
-                <i class="mdi mdi-pencil-box-outline"></i>
-            </span> Edit Invoice <span class="text-muted">{{ $invoice->invoice_number }}</span>
-        </h3>
-        <a href="{{ route('invoices.index') }}" class="btn btn-sm btn-outline-secondary">
-            <i class="mdi mdi-arrow-left me-1"></i> Back
-        </a>
-    </div>
+@push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ asset('assets/css/invoice-form.css') }}">
+@endpush
 
-    <form method="POST" action="{{ route('invoices.update', $invoice) }}" id="invoice-form">
-        @csrf
-        @method('PUT')
-        @include('invoices._form')
-    </form>
+@section('content')
+<div class="page-header-inv">
+    <div class="page-header-inv-main">
+        <span class="page-header-inv-icon"><i class="bi bi-pencil-square"></i></span>
+        <div>
+            <div class="page-header-inv-eyebrow">Edit invoice</div>
+            <h3 class="page-header-inv-title">Edit invoice <span class="text-muted">{{ $invoice->invoice_number }}</span></h3>
+            <p class="page-header-inv-subtitle">Update this invoice's customer, line items and billing details.</p>
+        </div>
+    </div>
+    <span class="auto-chip"><i class="bi bi-stars"></i> Totals update automatically</span>
+</div>
+
+<form method="POST" action="{{ route('invoices.update', $invoice) }}" id="invoice-form">
+    @csrf
+    @method('PUT')
+    @include('invoices._form')
+</form>
 @endsection
 
 @push('scripts')

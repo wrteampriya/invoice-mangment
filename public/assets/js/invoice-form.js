@@ -90,6 +90,7 @@
         clone.querySelector('.item-line-total').textContent = '0.00';
         itemsBody.appendChild(clone);
 
+        updateCurrencyPrefixes();
         refreshDiscountState(clone);
         refreshRemoveButtons();
         reindexRows();
@@ -115,9 +116,15 @@
 
     /**
      * Field names must match the server's items[0][...] collection indexes.
+     * Also keeps the numbered chip (01, 02, …) in sync.
      */
     function reindexRows() {
         Array.prototype.forEach.call(itemsBody.querySelectorAll('.item-row'), function (row, index) {
+            var chip = row.querySelector('.item-index');
+            if (chip) {
+                chip.textContent = String(index + 1).padStart(2, '0');
+            }
+
             row.querySelectorAll('input, textarea, select').forEach(function (field) {
                 var name = field.getAttribute('name');
                 if (!name) {
@@ -129,6 +136,16 @@
     }
 
     //============================== calculations ==============================
+    var CURRENCY_SYMBOLS = { USD: '$', INR: '\u20B9', EUR: '\u20AC', GBP: '\u00A3', AUD: 'A$', CAD: 'C$', AED: 'AED' };
+
+    function updateCurrencyPrefixes() {
+        var code = (currencySelect?.value || 'USD').toUpperCase();
+        var symbol = CURRENCY_SYMBOLS[code] || code;
+        document.querySelectorAll('.currency-prefix').forEach(function (el) {
+            el.textContent = symbol;
+        });
+    }
+
     function round2(value) {
         return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
     }
@@ -161,6 +178,7 @@
     }
 
     function recalcAll() {
+        updateCurrencyPrefixes();
         Array.prototype.forEach.call(itemsBody.querySelectorAll('.item-row'), recalcRowFor);
         recalcTotals();
     }
@@ -191,7 +209,7 @@
         var grandTotal = round2(netTotal + taxTotal);
 
         setText('invoice-subtotal', formatCurrency(subtotal));
-        setText('invoice-discount-total', formatCurrency(discountTotal));
+        setText('invoice-discount-total', (discountTotal > 0 ? '\u2212 ' : '') + formatCurrency(discountTotal));
         setText('invoice-tax-total', formatCurrency(taxTotal));
         setText('invoice-grand-total', formatCurrency(grandTotal));
     }

@@ -188,7 +188,7 @@ class CustomerController extends Controller
 
         $customer->update($request->validated());
 
-        return redirect()->route('customers.edit', $customer)->with('status', 'Customer updated.');
+        return redirect()->route('customers.index')->with('status', 'Customer updated.');
     }
 
     public function destroy(Customer $customer): RedirectResponse

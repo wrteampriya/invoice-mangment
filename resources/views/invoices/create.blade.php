@@ -2,22 +2,27 @@
 
 @section('title', 'Create Invoice - ' . config('app.name'))
 
-@section('content')
-<div class="page-header">
-    <h3 class="page-title">
-        <span class="page-title-icon bg-gradient-primary text-white me-2">
-            <i class="mdi mdi-file-plus-outline"></i>
-        </span> Create Invoice
-    </h3>
-    <a href="{{ route('invoices.index') }}" class="btn btn-sm btn-outline-secondary">
-        <i class="mdi mdi-arrow-left me-1"></i> Back
-    </a>
-</div>
+@push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ asset('assets/css/invoice-form.css') }}">
+@endpush
 
-<form method="POST" action="{{ route('invoices.store') }}" id="invoice-form">
-    @csrf
-    @include('invoices._form')
-</form>
+@section('content')
+    <div class="page-header-inv">
+        <div class="page-header-inv-main">
+            <span class="page-header-inv-icon"><i class="bi bi-receipt"></i></span>
+            <div>
+                <div class="page-header-inv-eyebrow">New invoice</div>
+                <h3 class="page-header-inv-title">Create invoice</h3>
+                <p class="page-header-inv-subtitle">Add your customer, invoice details and billable items.</p>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ route('invoices.store') }}" id="invoice-form">
+        @csrf
+        @include('invoices._form')
+    </form>
 @endsection
 
 @push('scripts')
