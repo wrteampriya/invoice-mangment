@@ -62,16 +62,16 @@ class DashboardService
     }
 
     /**
-     * Sum of received payments grouped by currency (single aggregate query).
+     * Grand totals of paid invoices grouped by currency (single aggregate query).
      */
     protected function paymentTotalsByCurrency(int $userId): Collection
     {
-        return Payment::query()
-            ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
-            ->where('payments.user_id', $userId)
-            ->groupBy('invoices.currency')
-            ->orderByDesc(DB::raw('SUM(payments.amount)'))
-            ->pluck(DB::raw('SUM(payments.amount)'), 'invoices.currency');
+        return Invoice::query()
+            ->ownedBy($userId)
+            ->paid()
+            ->groupBy('currency')
+            ->orderByDesc(DB::raw('SUM(grand_total)'))
+            ->pluck(DB::raw('SUM(grand_total)'), 'currency');
     }
 
     /**

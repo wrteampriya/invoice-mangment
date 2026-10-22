@@ -30,7 +30,7 @@
                 @if ($revenueSecondary->isNotEmpty())
                     {{ $revenueSecondary->map(fn ($amount, $currency) => format_money($amount, $currency))->implode(' · ') }}
                 @else
-                    Received payments
+                    Paid invoices
                 @endif
             </p>
         </div>
