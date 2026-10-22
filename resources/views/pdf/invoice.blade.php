@@ -40,7 +40,7 @@
                 <h1>{{ strtoupper($invoice->invoice_number) }}</h1>
                 <span class="muted">Issued on {{ $invoice->invoice_date?->format('M j, Y') }}</span>
                 @if ($invoice->due_date)
-                    <span class="muted"> · Due {{ $invoice->due_date->format('M j, Y') }}</span>
+                    <span class="muted"> &middot; Due {{ $invoice->due_date->format('M j, Y') }}</span>
                 @endif
                 <div style="margin-top:6px;">
                     <span class="badge {{ $invoice->display_status }}">{{ $invoice->display_status }}</span>
@@ -73,9 +73,10 @@
                 <table class="meta" align="right">
                     <tr><td class="label">Invoice number</td><td class="val">{{ $invoice->invoice_number }}</td></tr>
                     <tr><td class="label">Issue date</td><td class="val">{{ $invoice->invoice_date?->format('M j, Y') }}</td></tr>
-                    <tr><td class="label">Due date</td><td class="val">{{ $invoice->due_date?->format('M j, Y') ?? '—' }}</td></tr>
-                    <tr><td class="label">Tax type</td><td class="val">{{ $invoice->tax_type ? \App\Models\Invoice::TAX_TYPE_LABELS[$invoice->tax_type] : 'None' }}</td></tr>
-                    <tr><td class="label">Balance due</td><td class="val">{{ format_money($invoice->balance, $invoice->currency) }}</td></tr>
+                    <tr><td class="label">Due date</td><td class="val">{{ $invoice->due_date?->format('M j, Y') ?? '--' }}</td></tr>
+                    {{-- <tr><td class="label">Tax type</td><td class="val">{{ $invoice->tax_type ? \App\Models\Invoice::TAX_TYPE_LABELS[$invoice->tax_type] : 'None' }}</td></tr> --}}
+                    <tr><td class="label">Tax type</td><td class="val">{{ \App\Models\Invoice::TAX_TYPE_LABELS[$invoice->tax_type] ?? ($invoice->tax_type ?: 'None') }}</td></tr>
+                    <tr><td class="label">Balance due</td><td class="val">{{ format_money_pdf($invoice->balance, $invoice->currency) }}</td></tr>
                 </table>
             </td>
         </tr>
@@ -97,17 +98,17 @@
                 <tr>
                     <td>{{ $item->item_description }}</td>
                     <td class="num">{{ $item->quantity }}</td>
-                    <td class="num">{{ format_money($item->unit_price, $invoice->currency) }}</td>
+                    <td class="num">{{ format_money_pdf($item->unit_price, $invoice->currency) }}</td>
                     <td class="num">
                         @if ($item->discount_type === 'percentage')
                             -{{ $item->discount_value }}%
                         @elseif ($item->discount_type === 'flat')
-                            -{{ format_money($item->discount_value, $invoice->currency) }}
+                            -{{ format_money_pdf($item->discount_value, $invoice->currency) }}
                         @else
-                            —
+                            --
                         @endif
                     </td>
-                    <td class="num"><strong>{{ format_money($item->line_total, $invoice->currency) }}</strong></td>
+                    <td class="num"><strong>{{ format_money_pdf($item->line_total, $invoice->currency) }}</strong></td>
                 </tr>
             @empty
                 <tr><td colspan="5">No items on this invoice.</td></tr>
@@ -116,16 +117,16 @@
     </table>
 
     <table align="right" class="totals" style="margin-top:10px;">
-        <tr><td class="label">Subtotal</td><td class="val">{{ format_money($invoice->subtotal, $invoice->currency) }}</td></tr>
-        <tr><td class="label">Discount</td><td class="val">{{ format_money($invoice->discount_total, $invoice->currency) }}</td></tr>
+        <tr><td class="label">Subtotal</td><td class="val">{{ format_money_pdf($invoice->subtotal, $invoice->currency) }}</td></tr>
+        <tr><td class="label">Discount</td><td class="val">{{ format_money_pdf($invoice->discount_total, $invoice->currency) }}</td></tr>
         <tr><td class="label">
                 Tax{{ $invoice->tax_rate !== null ? ' (' . $invoice->tax_rate . '%)' : '' }}
             </td>
-            <td class="val">{{ format_money($invoice->tax_total, $invoice->currency) }}</td></tr>
-        <tr class="grand"><td class="label">Grand total</td><td class="val">{{ format_money($invoice->grand_total, $invoice->currency) }}</td></tr>
+            <td class="val">{{ format_money_pdf($invoice->tax_total, $invoice->currency) }}</td></tr>
+        <tr class="grand"><td class="label">Grand total</td><td class="val">{{ format_money_pdf($invoice->grand_total, $invoice->currency) }}</td></tr>
         @if ($invoice->paid_total > 0)
-            <tr><td class="label">Paid</td><td class="val" style="color:#1e9e5a;">{{ format_money($invoice->paid_total, $invoice->currency) }}</td></tr>
-            <tr><td class="label">Balance</td><td class="val" style="color:#d14343;">{{ format_money($invoice->balance, $invoice->currency) }}</td></tr>
+            <tr><td class="label">Paid</td><td class="val" style="color:#1e9e5a;">{{ format_money_pdf($invoice->paid_total, $invoice->currency) }}</td></tr>
+            <tr><td class="label">Balance</td><td class="val" style="color:#d14343;">{{ format_money_pdf($invoice->balance, $invoice->currency) }}</td></tr>
         @endif
     </table>
     <div style="clear:both;"></div>
@@ -146,8 +147,8 @@
                     <tr>
                         <td>{{ $payment->payment_date?->format('M j, Y') }}</td>
                         <td>{{ $payment->methodLabel() }}</td>
-                        <td>{{ $payment->reference ?? '—' }}</td>
-                        <td class="num">{{ format_money($payment->amount, $invoice->currency) }}</td>
+                        <td>{{ $payment->reference ?? '--' }}</td>
+                        <td class="num">{{ format_money_pdf($payment->amount, $invoice->currency) }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -158,7 +159,7 @@
     <p class="terms">{{ $invoice->terms_and_conditions ?: 'No terms specified.' }}</p>
 
     <div class="footer">
-        {{ $invoice->invoice_number }} · Issued by {{ $invoice->user->name }} · Generated on {{ now()->format('M j, Y \a\t g:i A') }}
+        {{ $invoice->invoice_number }} &middot; Issued by {{ $invoice->user->name }} &middot; Generated on {{ now()->format('M j, Y \a\t g:i A') }}
     </div>
 </body>
 </html>

@@ -522,6 +522,48 @@
     color: #1f2430;
 }
 
+.btn-inv-pdf {
+    background: #4f6bed;
+    border: 1px solid #4f6bed;
+    border-radius: 10px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-inv-pdf:hover {
+    background: #3f58d6;
+    border-color: #3f58d6;
+    color: #fff;
+}
+
+.btn-inv-pdf-sm {
+    background: #e8efff;
+    border: 1px solid #d4e0fc;
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #4f6bed;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-inv-pdf-sm:hover {
+    background: #4f6bed;
+    border-color: #4f6bed;
+    color: #fff;
+}
+
 .btn-inv-delete {
     background: #e53e3e;
     border: 1px solid #e53e3e;

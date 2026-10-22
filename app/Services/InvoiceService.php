@@ -55,7 +55,7 @@ class InvoiceService
             ->map(fn ($invoice) => (int) substr($invoice->invoice_number, strlen('INV-')))
             ->max();
 
-        return 'INV-' . str_pad((string) ($lastSequence + 1), 4, '0', STR_PAD_LEFT);
+        return 'INV-'.str_pad((string) ($lastSequence + 1), 4, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -81,6 +81,9 @@ class InvoiceService
                 'due_date' => $data['due_date'] ?? null,
                 'currency' => $data['currency'],
                 'customer_country' => strtoupper($customer->country_code),
+                'status' => in_array($data['status'] ?? null, Invoice::FORM_STATUSES, true)
+                    ? $data['status']
+                    : 'sent',
                 'tax_type' => $totals['tax_type'],
                 'tax_rate' => $totals['tax_rate'],
                 'subtotal' => $totals['subtotal'],

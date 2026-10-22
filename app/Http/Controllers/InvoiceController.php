@@ -63,7 +63,21 @@ class InvoiceController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('invoices.index', compact('invoices'));
+        $base = Invoice::query()->where('user_id', $request->user()->id);
+
+        $total = (clone $base)->count();
+        $paid = (clone $base)->paid()->count();
+        $overdue = (clone $base)->overdue()->count();
+
+        $stats = [
+            'total' => $total,
+            'overdue' => $overdue,
+            'sent' => $total - $paid - $overdue,
+            'paid' => $paid,
+            'currencies' => (clone $base)->distinct()->count('currency'),
+        ];
+
+        return view('invoices.index', compact('invoices', 'stats'));
     }
 
     public function create(Request $request): View
@@ -123,7 +137,7 @@ class InvoiceController extends Controller
         $invoice = $this->invoices->updateInvoice($invoice, $request->validated(), $request->itemRows());
 
         return redirect()
-            ->route('invoices.show', $invoice)
+            ->route('invoices.index')
             ->with('status', 'Invoice updated.');
     }
 
@@ -208,9 +222,27 @@ class InvoiceController extends Controller
 
     /**
      * Raw display fields (nothing pre-rendered) consumed by the table formatters.
+     * Status is bucketed into three display states: paid / overdue / sent.
      */
     protected function transformInvoice(Invoice $invoice): array
     {
+        // Status buckets into three display states: paid / overdue / sent.
+        // The form-selected stored status always wins; otherwise derived.
+        if (in_array($invoice->status, ['paid', 'overdue'], true)) {
+            $status = $invoice->status;
+        } elseif ($invoice->status === 'sent' && $invoice->balance <= 0) {
+            $status = 'paid';
+        } elseif (
+            $invoice->status === 'sent'
+            && $invoice->balance > 0
+            && $invoice->due_date
+            && $invoice->due_date->isPast()
+        ) {
+            $status = 'overdue';
+        } else {
+            $status = 'sent';
+        }
+
         return [
             'id' => $invoice->id,
             'invoice_number' => $invoice->invoice_number,
@@ -222,7 +254,9 @@ class InvoiceController extends Controller
             'grand_total' => (float) $invoice->grand_total,
             'grand_total_display' => $invoice->formatMoney((float) $invoice->grand_total),
             'items_count' => $invoice->items()->count(),
+            'status' => $status,
             'show_url' => route('invoices.show', $invoice),
+            'pdf_url' => route('invoices.pdf', $invoice),
             'edit_url' => route('invoices.edit', $invoice),
             'delete_url' => route('invoices.destroy', $invoice),
         ];

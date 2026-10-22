@@ -89,6 +89,22 @@ var lightColor = getComputedStyle(document.body).getPropertyValue('--light');
       }
     });
 
+    // When sidebar is in icon-only (collapsed) mode, clicking a nav-link
+    // should navigate directly — not expand the sidebar first.
+    sidebar.on('click', '.nav-item .nav-link', function(e) {
+      if (body.hasClass('sidebar-icon-only')) {
+        var href = $(this).attr('href');
+        if (href && href !== '#') {
+          // Let the browser follow the link normally; don't toggle anything.
+          return true;
+        }
+        // For items with sub-menus (href="#"), swallow the click so the
+        // sidebar does not pop open.
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+    });
+
     //checkbox and radios
     $(".form-check label,.form-radio label").append('<i class="input-helper"></i>');
 

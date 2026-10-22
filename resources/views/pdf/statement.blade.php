@@ -41,9 +41,9 @@
         <p class="currency-head">{{ $currency }}</p>
         <p class="currency-sub">
             {{ $group['invoices']->count() }} invoice{{ $group['invoices']->count() === 1 ? '' : 's' }} ·
-            Grand total {{ format_money($group['grandTotal'], $currency) }} ·
-            Paid {{ format_money($group['paidTotal'], $currency) }} ·
-            Outstanding {{ format_money($group['balanceTotal'], $currency) }}
+            Grand total {{ format_money_pdf($group['grandTotal'], $currency) }} ·
+            Paid {{ format_money_pdf($group['paidTotal'], $currency) }} ·
+            Outstanding {{ format_money_pdf($group['balanceTotal'], $currency) }}
         </p>
 
         <table class="items">
@@ -67,16 +67,16 @@
                         <td>{{ $invoice->invoice_date?->format('M j, Y') }}</td>
                         <td>{{ $invoice->due_date?->format('M j, Y') ?? '—' }}</td>
                         <td>{{ ucfirst($invoice->display_status) }}</td>
-                        <td class="num">{{ format_money($invoice->grand_total, $currency) }}</td>
-                        <td class="num paid-now">{{ format_money($invoice->paid_total, $currency) }}</td>
-                        <td class="num {{ $invoice->balance > 0 ? 'due-now' : '' }}">{{ format_money($invoice->balance, $currency) }}</td>
+                        <td class="num">{{ format_money_pdf($invoice->grand_total, $currency) }}</td>
+                        <td class="num paid-now">{{ format_money_pdf($invoice->paid_total, $currency) }}</td>
+                        <td class="num {{ $invoice->balance > 0 ? 'due-now' : '' }}">{{ format_money_pdf($invoice->balance, $currency) }}</td>
                     </tr>
                 @endforeach
                 <tr class="group-sum">
                     <td colspan="5">Total ({{ $currency }})</td>
-                    <td class="num">{{ format_money($group['grandTotal'], $currency) }}</td>
-                    <td class="num">{{ format_money($group['paidTotal'], $currency) }}</td>
-                    <td class="num">{{ format_money($group['balanceTotal'], $currency) }}</td>
+                    <td class="num">{{ format_money_pdf($group['grandTotal'], $currency) }}</td>
+                    <td class="num">{{ format_money_pdf($group['paidTotal'], $currency) }}</td>
+                    <td class="num">{{ format_money_pdf($group['balanceTotal'], $currency) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -100,7 +100,7 @@
                             <td>{{ $payment->invoice_number }}</td>
                             <td>{{ $payment->methodLabel() }}</td>
                             <td>{{ $payment->reference ?? '—' }}</td>
-                            <td class="num">{{ format_money($payment->amount, $currency) }}</td>
+                            <td class="num">{{ format_money_pdf($payment->amount, $currency) }}</td>
                         </tr>
                     @endforeach
                 </tbody>

@@ -114,29 +114,33 @@ class CustomerTest extends TestCase
         $user = User::factory()->create();
         $other = User::factory()->create();
 
-        $mine = Customer::factory()->individual()->create([
+        Customer::factory()->individual()->create([
             'user_id' => $user->id,
             'name' => 'My Own Customer',
             'email' => 'mine-own@example.com',
         ]);
-        $theirs = Customer::factory()->individual()->create([
+        Customer::factory()->individual()->create([
             'user_id' => $other->id,
             'name' => 'Zzz Other Customer',
             'email' => 'zzz-other@example.com',
         ]);
 
-        $response = $this->actingAs($user)->get(route('customers.index'));
+        // The list page renders rows via the JSON feed, so isolation is
+        // asserted against the same endpoint the table loads.
+        $response = $this->actingAs($user)->getJson(route('customers.index', ['format' => 'json']));
         $response->assertOk();
-        $response->assertSee('My Own Customer');
-        $response->assertDontSee('Zzz Other Customer');
+        $response->assertJsonFragment(['raw_name' => 'My Own Customer']);
+        $response->assertJsonMissing(['raw_name' => 'Zzz Other Customer']);
 
-        $response = $this->actingAs($user)->get(route('customers.index', ['q' => 'Customer']));
-        $response->assertSee('My Own Customer');
-        $response->assertDontSee('zzz-other@example.com');
+        $response = $this->actingAs($user)->getJson(route('customers.index', ['format' => 'json', 'search' => 'Customer']));
+        $response->assertOk();
+        $response->assertJsonFragment(['raw_name' => 'My Own Customer']);
+        $response->assertJsonMissing(['email' => 'zzz-other@example.com']);
 
-        $response = $this->actingAs($user)->get(route('customers.index', ['q' => 'Zzz Other']));
-        $response->assertDontSee('Zzz Other Customer');
-        $response->assertDontSee('zzz-other@example.com');
+        $response = $this->actingAs($user)->getJson(route('customers.index', ['format' => 'json', 'search' => 'Zzz Other']));
+        $response->assertOk();
+        $response->assertJsonMissing(['raw_name' => 'Zzz Other Customer']);
+        $response->assertJsonMissing(['email' => 'zzz-other@example.com']);
     }
 
     public function test_index_can_return_json_format_for_bootstrap_table(): void

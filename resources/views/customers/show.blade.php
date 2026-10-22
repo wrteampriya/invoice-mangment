@@ -191,6 +191,7 @@
                             <th>Status</th>
                             <th class="num">Total</th>
                             <th class="num">Balance</th>
+                            <th class="text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -203,6 +204,11 @@
                                 <td class="num text-strong">{{ format_money($invoice->grand_total, $invoice->currency) }}</td>
                                 <td class="num text-strong" style="color: {{ $invoice->balance > 0 ? '#d14343' : '#1e9e5a' }}">
                                     {{ format_money($invoice->balance, $invoice->currency) }}
+                                </td>
+                                <td class="text-center">
+                                    <a href="{{ route('invoices.pdf', $invoice) }}" target="_blank" class="inv-pdf-icon" title="Download PDF" aria-label="Download PDF">
+                                        <i class="mdi mdi-download"></i>
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach

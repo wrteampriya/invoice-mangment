@@ -25,6 +25,38 @@ if (! function_exists('format_money')) {
     }
 }
 
+if (! function_exists('format_money_pdf')) {
+    /**
+     * PDF-safe currency formatter.
+     * DomPDF cannot render Unicode symbols (₹ €  £) unless a matching
+     * font is embedded.  We use short ASCII prefixes so no glyph goes
+     * missing (shows as "?").
+     *
+     * INR  → Rs. 1,23,456.00  (Indian grouping)
+     * USD  → USD 1,234.56
+     * EUR  → EUR 1,234.56
+     * GBP  → GBP 1,234.56
+     */
+    function format_money_pdf(float|int|string|null $amount, string $currency = 'INR'): string
+    {
+        $value = (float) $amount;
+
+        if ($currency === 'INR') {
+            return 'Rs. ' . format_money_indian($value);
+        }
+
+        return match ($currency) {
+            'USD' => 'USD ' . number_format($value, 2),
+            'EUR' => 'EUR ' . number_format($value, 2),
+            'GBP' => 'GBP ' . number_format($value, 2),
+            'AED' => 'AED ' . number_format($value, 2),
+            'SGD' => 'SGD ' . number_format($value, 2),
+            'AUD' => 'AUD ' . number_format($value, 2),
+            default => $currency . ' ' . number_format($value, 2),
+        };
+    }
+}
+
 if (! function_exists('format_money_indian')) {
     /**
      * 1234567.5 => "12,34,567.50" (Indian lakh/crore grouping).

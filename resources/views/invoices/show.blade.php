@@ -32,9 +32,12 @@
             <h1>Invoice {{ $invoice->invoice_number }}</h1>
             <p class="inv-subtitle">Review invoice information, customer details and line items.</p>
         </div>
-        <div class="inv-header-actions">
+         <div class="inv-header-actions">
             <a href="{{ route('invoices.index') }}" class="btn-inv-back">
                 <i class="mdi mdi-arrow-left"></i> Back
+            </a>
+            {{-- <a href="{{ route('invoices.pdf', $invoice) }}" target="_blank" class="btn-inv-pdf">
+                <i class="mdi mdi-file-pdf-box"></i> Download PDF
             </a>
             <a href="{{ route('invoices.edit', $invoice) }}" class="btn-inv-edit">
                 <i class="mdi mdi-pencil-outline"></i> Edit
@@ -46,8 +49,8 @@
                 data-delete-name="{{ $invoice->invoice_number }}"
             >
                 <i class="mdi mdi-delete-outline"></i> Delete
-            </button>
-        </div>
+            </button> --}}
+        </div> 
     </div>
 
     @if (session('status'))
@@ -148,7 +151,12 @@
                 <p class="inv-breakdown-kicker">Invoice Breakdown</p>
                 <h4 class="inv-breakdown-title">Items</h4>
             </div>
-            <span class="inv-item-count">{{ $invoice->items->count() }} {{ Str::plural('item', $invoice->items->count()) }}</span>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ route('invoices.pdf', $invoice) }}" target="_blank" class="btn-inv-pdf-sm" title="Download invoice PDF">
+                    <i class="mdi mdi-download"></i> Download PDF
+                </a>
+                <span class="inv-item-count">{{ $invoice->items->count() }} {{ Str::plural('item', $invoice->items->count()) }}</span>
+            </div>
         </div>
 
         <div class="table-responsive">

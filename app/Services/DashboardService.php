@@ -17,7 +17,7 @@ class DashboardService
     public function build(int $userId): array
     {
         $revenueByCurrency = $this->paymentTotalsByCurrency($userId);
-        $primaryCurrency = $this->primaryCurrency($revenueByCurrency, $userId);
+        $primaryCurrency = $this->primaryCurrency($userId);
 
         return [
             'totalInvoices' => $this->totalInvoices($userId),
@@ -75,18 +75,14 @@ class DashboardService
     }
 
     /**
-     * The currency owning the largest payment volume (fallback: the
-     * most-used invoice currency, then INR).
+     * The primary currency based on invoice volume (fallback: INR).
      */
-    protected function primaryCurrency(Collection $revenueByCurrency, int $userId): string
+    protected function primaryCurrency(int $userId): string
     {
-        if ($revenueByCurrency->isNotEmpty()) {
-            return $revenueByCurrency->sortDesc()->keys()->first();
-        }
-
         return Invoice::query()->ownedBy($userId)
-            ->selectRaw('currency, COUNT(*) as cnt')
+            ->selectRaw('currency, COUNT(*) as cnt, SUM(grand_total) as total')
             ->groupBy('currency')
+            ->orderByDesc('total')
             ->orderByDesc('cnt')
             ->value('currency') ?? 'INR';
     }
@@ -140,20 +136,28 @@ class DashboardService
     }
 
     /**
-     * Received payments of the primary currency over the last 6 months,
+     * Invoices created of the primary currency over the last 6 months,
      * zero-filled, with rounded bar percentages and y-axis ticks.
      */
     protected function revenueChart(int $userId, string $currency): array
     {
         $start = now()->startOfMonth()->subMonths(5); // earliest month on the chart
 
-        $monthly = Payment::query()
-            ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
-            ->where('payments.user_id', $userId)
-            ->where('invoices.currency', $currency)
-            ->where('payments.payment_date', '>=', $start->toDateString())
+        $monthly = Invoice::query()
+            ->ownedBy($userId)
+            ->where('currency', $currency)
+            ->where(function ($q) use ($start) {
+                $q->where('invoice_date', '>=', $start->toDateString())
+                    ->orWhere(function ($q2) use ($start) {
+                        $q2->whereNull('invoice_date')
+                            ->where('created_at', '>=', $start->toDateString());
+                    });
+            })
             ->groupBy('month_key')
-            ->pluck(DB::raw('SUM(payments.amount)'), DB::raw("DATE_FORMAT(payments.payment_date, '%Y-%m') as month_key"));
+            ->pluck(
+                DB::raw('SUM(grand_total)'),
+                DB::raw("DATE_FORMAT(COALESCE(invoice_date, created_at), '%Y-%m') as month_key")
+            );
 
         $currentMonth = now()->format('Y-m');
         $max = 0.0;

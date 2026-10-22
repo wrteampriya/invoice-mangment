@@ -27,6 +27,18 @@ class Invoice extends Model
 
     public const STATUSES = ['draft', 'sent', 'cancelled'];
 
+    /**
+     * Display statuses selectable from the create/edit form. The stored
+     * column accepts these and they always win over the derived state.
+     */
+    public const FORM_STATUSES = ['sent', 'overdue', 'paid'];
+
+    public const FORM_STATUS_LABELS = [
+        'sent' => 'Sent',
+        'overdue' => 'Overdue',
+        'paid' => 'Paid',
+    ];
+
     protected $fillable = [
         'user_id',
         'customer_id',
@@ -99,11 +111,16 @@ class Invoice extends Model
     }
 
     /**
-     * Computed status for display: draft/cancelled as stored, otherwise
+     * Computed status for display: explicit "paid"/"overdue" values chosen in
+     * the form always win; otherwise draft/cancelled as stored, otherwise
      * derived from payments and the due date.
      */
     public function getDisplayStatusAttribute(): string
     {
+        if (in_array($this->status, ['paid', 'overdue'], true)) {
+            return $this->status;
+        }
+
         if (in_array($this->status, ['draft', 'cancelled'], true)) {
             return $this->status;
         }
@@ -124,21 +141,30 @@ class Invoice extends Model
     }
 
     /**
-     * Sent invoices that still have an outstanding balance.
+     * Sent/overdue-marked invoices that still have an outstanding balance.
+     * Stored "paid" invoices are excluded.
      */
     public function scopeOutstanding(Builder $query): Builder
     {
         return $query
-            ->where('status', 'sent')
+            ->whereIn('status', ['sent', 'overdue'])
             ->whereRaw('grand_total > COALESCE((SELECT SUM(amount) FROM payments WHERE payments.invoice_id = invoices.id), 0)');
     }
 
     /**
-     * Outstanding invoices whose due date has passed.
+     * Overdue = the explicit "overdue" form value, or a sent invoice with an
+     * outstanding balance whose due date has passed.
      */
     public function scopeOverdue(Builder $query): Builder
     {
-        return $query->outstanding()->whereDate('due_date', '<', now()->toDateString());
+        return $query->where(function (Builder $query) {
+            $query->where('status', 'overdue')
+                ->orWhere(function (Builder $q) {
+                    $q->where('status', 'sent')
+                        ->whereRaw('grand_total > COALESCE((SELECT SUM(amount) FROM payments WHERE payments.invoice_id = invoices.id), 0)')
+                        ->whereDate('due_date', '<', now()->toDateString());
+                });
+        });
     }
 
     /**
@@ -150,6 +176,21 @@ class Invoice extends Model
             now()->toDateString(),
             now()->addDays($days)->toDateString(),
         ]);
+    }
+
+    /**
+     * Paid = the explicit "paid" form value, or a sent invoice whose
+     * payments cover the grand total.
+     */
+    public function scopePaid(Builder $query): Builder
+    {
+        return $query->where(function (Builder $query) {
+            $query->where('status', 'paid')
+                ->orWhere(function (Builder $q) {
+                    $q->where('status', 'sent')
+                        ->whereRaw('grand_total <= COALESCE((SELECT SUM(amount) FROM payments WHERE payments.invoice_id = invoices.id), 0)');
+                });
+        });
     }
 
     /**

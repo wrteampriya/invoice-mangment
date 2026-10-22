@@ -21,7 +21,11 @@ class CustomerController extends Controller
 
         if ($request->wantsJson() || $request->ajax() || $request->query('format') === 'json') {
             $query = Customer::ownedBy($request->user()->id)
-                ->search($request->input('search', $request->input('q')));
+                ->search($request->input('search', $request->input('q')))
+                ->when(
+                    in_array($request->input('type'), Customer::CUSTOMER_TYPES, true),
+                    fn ($query) => $query->where('customer_type', $request->input('type'))
+                );
 
             $this->applyRequestSort($query, $request);
 
@@ -46,17 +50,27 @@ class CustomerController extends Controller
             ]);
         }
 
-        $customers = Customer::ownedBy($request->user()->id)
-            ->search($request->input('q'))
-            ->when(
-                in_array($request->input('type'), Customer::CUSTOMER_TYPES, true),
-                fn ($query) => $query->where('customer_type', $request->input('type'))
-            )
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
+        $statsQuery = Customer::ownedBy($request->user()->id);
 
-        return view('customers.index', compact('customers'));
+        $stats = [
+            'total' => (clone $statsQuery)->count(),
+            'business' => (clone $statsQuery)->where('customer_type', 'business')->count(),
+            'individual' => (clone $statsQuery)->where('customer_type', 'individual')->count(),
+            'countries' => (clone $statsQuery)->distinct()->count('country_code'),
+        ];
+
+        return view('customers.index', [
+            'customers' => Customer::ownedBy($request->user()->id)
+                ->search($request->input('q'))
+                ->when(
+                    in_array($request->input('type'), Customer::CUSTOMER_TYPES, true),
+                    fn ($query) => $query->where('customer_type', $request->input('type'))
+                )
+                ->latest()
+                ->paginate(10)
+                ->withQueryString(),
+            'stats' => $stats,
+        ]);
     }
 
     protected function applyRequestSort(Builder $query, Request $request): void
@@ -174,7 +188,7 @@ class CustomerController extends Controller
 
         $customer->update($request->validated());
 
-        return redirect()->route('customers.index')->with('status', 'Customer updated.');
+        return redirect()->route('customers.edit', $customer)->with('status', 'Customer updated.');
     }
 
     public function destroy(Customer $customer): RedirectResponse

@@ -76,6 +76,19 @@
                     <div class="field-error">{{ $message }}</div>
                 @enderror
             </div>
+            <div class="col-md-3 mb-3">
+                <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
+                <select name="status" id="status" class="form-select" required>
+                    @foreach (\App\Models\Invoice::FORM_STATUSES as $formStatus)
+                        <option value="{{ $formStatus }}" {{ old('status', $invoice->status ?? 'sent' ) === $formStatus ? 'selected' : '' }}>
+                            {{ \App\Models\Invoice::FORM_STATUS_LABELS[$formStatus] }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('status')
+                    <div class="field-error">{{ $message }}</div>
+                @enderror
+            </div>
         </div>
         <div class="row">
             <div class="col-md-4 mb-3">

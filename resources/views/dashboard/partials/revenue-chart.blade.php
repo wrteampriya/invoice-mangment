@@ -1,27 +1,27 @@
-{{-- Revenue by month: pure-CSS bar chart of received payments --}}
+{{-- Invoiced by month: pure-CSS bar chart of invoices created --}}
 @if (collect($chart['months'])->sum('value') <= 0)
     <div class="dash-card chart-card">
         <div class="dash-card-head">
             <div>
-                <h4 class="dash-card-title">Revenue by month</h4>
+                <h4 class="dash-card-title">Invoiced by month</h4>
                 <p class="dash-card-sub mb-0">{{ $chart['currency'] }}, last 6 months</p>
             </div>
-            <span class="chart-legend"><span class="legend-dot"></span> Revenue</span>
+            <span class="chart-legend"><span class="legend-dot"></span> Invoiced</span>
         </div>
         <div class="chart-empty">
             <span class="empty-icon"><i class="mdi mdi-chart-bar"></i></span>
-            <p class="empty-title mb-1">No payments yet</p>
-            <p class="empty-text mb-0">Payments you record will chart here.</p>
+            <p class="empty-title mb-1">No invoices yet</p>
+            <p class="empty-text mb-0">Invoices you create will chart here.</p>
         </div>
     </div>
 @else
     <div class="dash-card chart-card">
         <div class="dash-card-head">
             <div>
-                <h4 class="dash-card-title">Revenue by month</h4>
+                <h4 class="dash-card-title">Invoiced by month</h4>
                 <p class="dash-card-sub mb-0">{{ $chart['currency'] }}, last 6 months</p>
             </div>
-            <span class="chart-legend"><span class="legend-dot"></span> Revenue</span>
+            <span class="chart-legend"><span class="legend-dot"></span> Invoiced</span>
         </div>
 
         <div class="chart-area">

@@ -17,7 +17,7 @@ class BaseInvoiceRequest extends FormRequest
     {
         $customerId = $this->input('customer_id');
 
-        if ($customerId !== null && !Customer::query()
+        if ($customerId !== null && ! Customer::query()
             ->where('user_id', (int) $this->user()->id)
             ->whereKey((int) $customerId)
             ->exists()) {
@@ -41,8 +41,8 @@ class BaseInvoiceRequest extends FormRequest
         if (is_array($this->input('items'))) {
             $items = $this->input('items');
 
-            $input['items'] = array_map(function ($row) use ($input) {
-                if (!is_array($row)) {
+            $input['items'] = array_map(function ($row) {
+                if (! is_array($row)) {
                     return $row;
                 }
 
@@ -68,8 +68,9 @@ class BaseInvoiceRequest extends FormRequest
             'customer_id' => ['required', 'integer', 'exists:customers,id'],
             'invoice_date' => ['required', 'date'],
             'due_date' => ['nullable', 'date', 'after_or_equal:invoice_date'],
-            'currency' => ['required', 'string', 'max:10', 'in:' . implode(',', Invoice::CURRENCIES)],
-            'tax_type' => ['required', 'in:' . implode(',', Invoice::TAX_TYPES)],
+            'currency' => ['required', 'string', 'max:10', 'in:'.implode(',', Invoice::CURRENCIES)],
+            'status' => ['nullable', 'string', 'in:'.implode(',', Invoice::FORM_STATUSES)],
+            'tax_type' => ['required', 'in:'.implode(',', Invoice::TAX_TYPES)],
             /*
              * Rate rule per spec:
              * - type None: hidden, value stays null.
@@ -112,14 +113,14 @@ class BaseInvoiceRequest extends FormRequest
             $items = $this->itemRows();
 
             foreach ($items as $index => $row) {
-                if (!is_array($row)) {
+                if (! is_array($row)) {
                     continue;
                 }
 
                 $discountType = $row['discount_type'] ?? InvoiceItem::DISCOUNT_TYPE_NONE;
                 $discountValue = $row['discount_value'] ?? null;
 
-                if ($discountValue === null || !is_numeric($discountValue)) {
+                if ($discountValue === null || ! is_numeric($discountValue)) {
                     continue;
                 }
 
@@ -129,7 +130,7 @@ class BaseInvoiceRequest extends FormRequest
                     $lineGross = (float) ($row['quantity'] ?? 0) * (float) ($row['unit_price'] ?? 0);
                     if ($value > $lineGross) {
                         $validator->errors()->add(
-                            'items.' . $index . '.discount_value',
+                            'items.'.$index.'.discount_value',
                             __('Flat discount cannot be greater than the line amount (:amount).', ['amount' => number_format($lineGross, 2)])
                         );
                     }
@@ -137,7 +138,7 @@ class BaseInvoiceRequest extends FormRequest
 
                 if ($discountType === 'percentage' && $value > 100) {
                     $validator->errors()->add(
-                        'items.' . $index . '.discount_value',
+                        'items.'.$index.'.discount_value',
                         __('Percentage discount cannot be greater than 100.')
                     );
                 }

@@ -400,6 +400,26 @@
     text-align: right;
 }
 
+.inv-pdf-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #f1edff;
+    border: 1px solid #ddd4fb;
+    color: #6941c6;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 15px;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.inv-pdf-icon:hover {
+    background-color: #e5dcfe;
+    color: #5332a6;
+}
+
 /* --- status badges --- */
 .status-badge {
     display: inline-block;
