@@ -1,0 +1,153 @@
+/* ===== Navy sidebar (Workspace style) ===== */
+
+.sidebar {
+    background: #0f1e3d !important;
+    padding: 1rem .75rem 2rem;
+}
+
+.sidebar .nav {
+    overflow: visible;
+    margin-bottom: 0;
+}
+
+/* section label */
+.sidebar .nav-section-label {
+    display: block;
+    padding: .9rem .8rem .7rem;
+    font-size: .6875rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #7d8ba8;
+}
+
+/* rows */
+.sidebar .nav .nav-item {
+    padding: 0;
+    background: transparent;
+    margin-bottom: .4rem;
+    border-radius: 10px;
+    -webkit-transition: none !important;
+    transition: none !important;
+}
+
+.sidebar .nav .nav-item .nav-link,
+.sidebar .nav .nav-item .nav-link:visited {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    color: #c7d2e5 !important;
+    padding: .55rem .8rem;
+    border-radius: 10px;
+    text-decoration: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-transition: none !important;
+    transition: none !important;
+}
+
+/* icon left of the title */
+.sidebar .nav .nav-item .nav-link i.menu-icon {
+    font-size: 1.05rem;
+    line-height: 1;
+    margin: 0;
+    color: #aebad3 !important;
+    -webkit-transition: none !important;
+    transition: none !important;
+}
+
+.sidebar .nav .nav-item .nav-link .menu-title {
+    font-size: .875rem;
+    line-height: 1.4;
+    color: #c7d2e5 !important;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    -webkit-transition: none !important;
+    transition: none !important;
+}
+
+/* hover states */
+.sidebar .nav .nav-item:hover {
+    background: rgba(255, 255, 255, .045);
+}
+
+.sidebar .nav .nav-item:hover .nav-link,
+.sidebar .nav .nav-item .nav-link:hover {
+    color: #ffffff !important;
+}
+
+.sidebar .nav .nav-item:hover .nav-link .menu-title,
+.sidebar .nav .nav-item .nav-link:hover .menu-title {
+    color: #ffffff !important;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.sidebar .nav .nav-item:hover .nav-link i.menu-icon,
+.sidebar .nav .nav-item .nav-link:hover i.menu-icon {
+    color: #ffffff !important;
+}
+
+/* focus, active, click states: PREVENT TAB NAME FROM HIDING OR BLENDING INTO BACKGROUND */
+.sidebar .nav .nav-item .nav-link:focus,
+.sidebar .nav .nav-item .nav-link:active,
+.sidebar .nav .nav-item .nav-link:focus-visible,
+.sidebar .nav .nav-item:active,
+.sidebar .nav .nav-item:focus-within {
+    color: #ffffff !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.sidebar .nav .nav-item .nav-link:focus .menu-title,
+.sidebar .nav .nav-item .nav-link:active .menu-title,
+.sidebar .nav .nav-item .nav-link:focus-visible .menu-title,
+.sidebar .nav .nav-item:active .menu-title,
+.sidebar .nav .nav-item:focus-within .menu-title {
+    color: #ffffff !important;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.sidebar .nav .nav-item .nav-link:focus i.menu-icon,
+.sidebar .nav .nav-item .nav-link:active i.menu-icon,
+.sidebar .nav .nav-item .nav-link:focus-visible i.menu-icon,
+.sidebar .nav .nav-item:active i.menu-icon,
+.sidebar .nav .nav-item:focus-within i.menu-icon {
+    color: #ffffff !important;
+}
+
+/* active pill */
+.sidebar .nav .nav-item.active {
+    background: #2a4a7b !important;
+}
+
+.sidebar .nav .nav-item.active .nav-link,
+.sidebar .nav .nav-item.active .nav-link:focus,
+.sidebar .nav .nav-item.active .nav-link:active,
+.sidebar .nav .nav-item.active .nav-link:hover {
+    color: #ffffff !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.sidebar .nav .nav-item.active .nav-link .menu-title {
+    color: #ffffff !important;
+    font-weight: 600;
+    font-family: inherit;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.sidebar .nav .nav-item.active .nav-link i.menu-icon {
+    color: #ffffff !important;
+}
+
+/* collapsed icon-only mode: only hide title if body has sidebar-icon-only */
+body.sidebar-icon-only .sidebar .nav .nav-item .nav-link .menu-title {
+    display: none !important;
+}

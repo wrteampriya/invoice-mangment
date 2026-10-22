@@ -5,6 +5,7 @@ namespace App\Http\Requests\Invoice;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
+use App\Support\Currencies;
 use Illuminate\Foundation\Http\FormRequest;
 
 class BaseInvoiceRequest extends FormRequest
@@ -68,7 +69,7 @@ class BaseInvoiceRequest extends FormRequest
             'customer_id' => ['required', 'integer', 'exists:customers,id'],
             'invoice_date' => ['required', 'date'],
             'due_date' => ['nullable', 'date', 'after_or_equal:invoice_date'],
-            'currency' => ['required', 'string', 'max:10', 'in:'.implode(',', Invoice::CURRENCIES)],
+            'currency' => ['required', 'string', 'max:10', 'in:'.implode(',', Currencies::codes())],
             'status' => ['nullable', 'string', 'in:'.implode(',', Invoice::FORM_STATUSES)],
             'tax_type' => ['required', 'in:'.implode(',', Invoice::TAX_TYPES)],
             /*

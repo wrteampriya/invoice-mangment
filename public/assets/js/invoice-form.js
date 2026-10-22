@@ -136,11 +136,10 @@
     }
 
     //============================== calculations ==============================
-    var CURRENCY_SYMBOLS = { USD: '$', INR: '\u20B9', EUR: '\u20AC', GBP: '\u00A3', AUD: 'A$', CAD: 'C$', AED: 'AED' };
-
     function updateCurrencyPrefixes() {
-        var code = (currencySelect?.value || 'USD').toUpperCase();
-        var symbol = CURRENCY_SYMBOLS[code] || code;
+        var option = currencySelect?.selectedOptions?.[0];
+        var code = (option?.value || 'USD').toUpperCase();
+        var symbol = (option?.dataset.symbol || '').trim() || code;
         document.querySelectorAll('.currency-prefix').forEach(function (el) {
             el.textContent = symbol;
         });

@@ -1,6 +1,5 @@
 @php
     $taxTypeLabels = \App\Models\Invoice::TAX_TYPE_LABELS;
-    $currencies = \App\Models\Invoice::CURRENCIES;
     $isEdit = $invoice->exists;
     $selectedTaxType = old('tax_type', $invoice->tax_type ?? \App\Models\Invoice::TAX_TYPE_NONE);
     $taxable = $selectedTaxType !== \App\Models\Invoice::TAX_TYPE_NONE;
@@ -68,12 +67,16 @@
                     >
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Currency <span class="star">*</span></label>
-                    <select name="currency" id="currency" class="form-select" required>
-                        @foreach ($currencies as $currency)
-                            <option value="{{ $currency }}" {{ old('currency', $invoice->currency ?: $currencies[0]) === $currency ? 'selected' : '' }}>{{ $currency }}</option>
-                        @endforeach
-                    </select>
+                <label class="form-label">Currency <span class="star">*</span></label>
+                <select name="currency" id="currency" class="form-select" required>
+                    @foreach (\App\Support\Currencies::sorted() as $currencyCode => $currencyName)
+                        <option
+                            value="{{ $currencyCode }}"
+                            data-symbol="{{ \App\Support\Currencies::symbol($currencyCode) }}"
+                            {{ old('currency', $invoice->currency ?: 'USD') === $currencyCode ? 'selected' : '' }}
+                        >{{ $currencyName }} — {{ $currencyCode }}</option>
+                    @endforeach
+                </select>
                     @error('currency')
                         <div class="field-error">{{ $message }}</div>
                     @enderror

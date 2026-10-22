@@ -89,8 +89,7 @@ var lightColor = getComputedStyle(document.body).getPropertyValue('--light');
       }
     });
 
-    // When sidebar is in icon-only (collapsed) mode, clicking a nav-link
-    // should navigate directly — not expand the sidebar first.
+    // Sidebar nav-link click behavior:
     sidebar.on('click', '.nav-item .nav-link', function(e) {
       if (body.hasClass('sidebar-icon-only')) {
         var href = $(this).attr('href');
@@ -102,6 +101,14 @@ var lightColor = getComputedStyle(document.body).getPropertyValue('--light');
         // sidebar does not pop open.
         e.preventDefault();
         e.stopImmediatePropagation();
+        return;
+      }
+
+      // Normal expanded sidebar: immediately set active class on click for smooth visual feedback
+      var $item = $(this).closest('.nav-item');
+      if ($item.length) {
+        sidebar.find('.nav-item').removeClass('active');
+        $item.addClass('active');
       }
     });
 

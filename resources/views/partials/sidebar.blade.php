@@ -1,24 +1,24 @@
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
-   
+
     <ul class="nav">
+        <li class="nav-section-label">Workspace</li>
         <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('dashboard') }}">
+                <i class="bi bi-grid menu-icon"></i>
                 <span class="menu-title">Dashboard</span>
-                <i class="mdi mdi-home menu-icon"></i>
             </a>
         </li>
         <li class="nav-item {{ request()->routeIs('customers.*') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('customers.index') }}">
+                <i class="bi bi-people menu-icon"></i>
                 <span class="menu-title">Customers</span>
-                <i class="mdi mdi-contacts menu-icon"></i>
             </a>
         </li>
         <li class="nav-item {{ request()->routeIs('invoices.*') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('invoices.index') }}">
+                <i class="bi bi-receipt menu-icon"></i>
                 <span class="menu-title">Invoices</span>
-                <i class="mdi mdi-receipt menu-icon"></i>
             </a>
         </li>
-        
     </ul>
 </nav>
